@@ -42,7 +42,8 @@ objectHere o rm = foldr (\x xs -> if (o == (obj_name x)) then True else xs)False
    without that object -}
 
 removeObject :: String -> Room -> Room
-removeObject o rm = undefined
+removeObject o rm = Room {room_desc = room_desc rm, exits = exits rm, objects = filter (\x -> obj_name x /= o) (objects rm)}
+
 
 {- Given an object and a room description, return a new room description
    with that object added -}
