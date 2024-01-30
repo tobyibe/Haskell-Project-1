@@ -30,7 +30,8 @@ Nothing
 -}
 
 move :: String -> Room -> Maybe String
-move dir rm = undefined
+move dir rm = foldr (\x xs -> if dir == (exit_dir x) then Just (room x) else xs) Nothing (exits rm)
+
 
 {- Return True if the object appears in the room. -}
 
