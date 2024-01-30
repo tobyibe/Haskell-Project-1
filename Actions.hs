@@ -34,9 +34,9 @@ move dir rm = foldr (\x xs -> if dir == (exit_dir x) then Just (room x) else xs)
 
 
 {- Return True if the object appears in the room. -}
-
+-- ran with objectHere "mug" kitchen
 objectHere :: String -> Room -> Bool
-objectHere o rm = undefined
+objectHere o rm = foldr (\x xs -> if (o == (obj_name x)) then True else xs)False (objects rm)
 
 {- Given an object id and a room description, return a new room description
    without that object -}
