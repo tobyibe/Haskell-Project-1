@@ -25,7 +25,7 @@ e.g. try these at the ghci prompt
 *Main> move "north" bedroom
 Just "kitchen"
 
-*Main> move "north" kitchen
+*Main> move "north" kitchenre
 Nothing
 -}
 
@@ -62,7 +62,7 @@ findObj name (x:xs) | name == (obj_name x) = x
 {- Use 'findObj' to find an object in a room description -}
 
 objectData :: String -> Room -> Object
-objectData o rm = undefined
+objectData o rm = findObj o (objects rm)
 
 {- Given a game state and a room id, replace the old room information with
    new data. If the room id does not already exist, add it. -}
