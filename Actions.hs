@@ -55,7 +55,8 @@ addObject o rm = Room {room_desc = (room_desc rm), exits = (exits rm), objects =
    checked with 'objectHere') -}
 
 findObj :: String -> [Object] -> Object
-findObj o ds = undefined
+findObj name (x:xs) | name == (obj_name x) = x
+                 | otherwise = findObj name xs
 
 {- Use 'findObj' to find an object in a room description -}
 
