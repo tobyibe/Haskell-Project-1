@@ -68,7 +68,12 @@ objectData o rm = findObj o (objects rm)
    new data. If the room id does not already exist, add it. -}
 
 updateRoom :: GameData -> String -> Room -> GameData
-updateRoom gd rmid rmdata = undefined
+updateRoom gd rmid rmdata = gd { world = updatedWorld }
+    where
+        updatedWorld = map updateRoomIfMatch (world gd)
+        updateRoomIfMatch (rid, r)
+            | rid == rmid = (rmid, rmdata)
+            | otherwise   = (rid, r)
 
 {- Given a game state and an object id, find the object in the current
    room and add it to the player's inventory -}
