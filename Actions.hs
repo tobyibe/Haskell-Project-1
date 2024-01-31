@@ -141,7 +141,7 @@ get obj state =
                  updatedRoom = removeObject obj (getRoomData state)
                  finalState = updateRoom updatedState (location_id state) updatedRoom
              in (finalState, "You picked up: " ++ obj ++ ".")
-        else (state, "The object: " ++obj ++ " is not in the room.")
+        else (state, "The object: " ++obj++ " is not in the room.")
 
 {- Remove an item from the player's inventory, and put it in the current room.
    Similar to 'get' but in reverse - find the object in the inventory, create
@@ -149,7 +149,14 @@ get obj state =
 -}
 
 put :: Action
-put obj state = undefined
+put obj state = 
+   if objectHere obj (getRoomData state)
+        then let
+                 updatedState = removeInv state obj
+                 updatedRoom = addObject obj (getRoomData state)
+                 finalState = updateRoom updatedState (location_id state) updatedRoom
+             in (finalState, "You dropped: " ++ obj ++ ".")
+        else (state, "The object: " ++obj++ " is not in your inventory.")
 
 {- Don't update the state, just return a message giving the full description
    of the object. As long as it's either in the room or the player's 
