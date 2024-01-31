@@ -113,7 +113,12 @@ e.g.
 -}
 
 go :: Action
-go dir state = undefined
+go dir state =
+   case move dir (getRoomData state) of
+        Just newRoomId ->
+            (state {location_id=newRoomId}, "OK\n")
+        Nothing ->
+            (state , "Can't go that way.\n")
 
 {- Remove an item from the current room, and put it in the player's inventory.
    This should only work if the object is in the current room. Use 'objectHere'
@@ -128,7 +133,14 @@ go dir state = undefined
 -}
 
 get :: Action
-get obj state = undefined
+get obj state = 
+   if objectHere obj (getRoomData state)
+        then let
+                 updatedState = addInv state obj
+                 updatedRoom = removeObject obj (getRoomData state)
+                 finalState = updateRoom updatedState (location_id state) updatedRoom
+             in (finalState, "You picked up: " ++ obj ++ ".")
+        else (state, "The object: " ++obj ++ " is not in the room.")
 
 {- Remove an item from the player's inventory, and put it in the current room.
    Similar to 'get' but in reverse - find the object in the inventory, create
