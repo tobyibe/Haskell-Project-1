@@ -36,13 +36,13 @@ move dir rm = foldr (\x xs -> if dir == (exit_dir x) then Just (room x) else xs)
 {- Return True if the object appears in the room. -}
 -- ran with objectHere "mug" kitchen
 objectHere :: String -> Room -> Bool
-objectHere o rm = foldr (\x xs -> if (o == (obj_name x)) then True else xs)False (objects rm)
+objectHere o rm = foldr (\x xs -> if (o == (obj_longname x)) then True else xs)False (objects rm)
 
 {- Given an object id and a room description, return a new room description
    without that object -}
 
 removeObject :: String -> Room -> Room
-removeObject o rm = Room {room_desc = room_desc rm, exits = exits rm, objects = filter (\x -> obj_name x /= o) (objects rm)}
+removeObject o rm = Room {room_desc = room_desc rm, exits = exits rm, objects = filter (\x -> obj_longname x /= o) (objects rm)}
 
 
 {- Given an object and a room description, return a new room description
@@ -56,7 +56,7 @@ addObject o rm = Room {room_desc = (room_desc rm), exits = (exits rm), objects =
    checked with 'objectHere') -}
 
 findObj :: String -> [Object] -> Object
-findObj name (x:xs) | name == (obj_name x) = x
+findObj name (x:xs) | name == (obj_longname x) = x
                     | otherwise = findObj name xs
 
 {- Use 'findObj' to find an object in a room description -}
@@ -92,14 +92,15 @@ addInv gd objName
 
 -- | Removes an object from the player's inventory.
 removeInv :: GameData -> String -> GameData
-removeInv gd objName = gd { inventory = filter (\obj -> obj_name obj /= objName) (inventory gd) }
-
+removeInv gd objName = gd { inventory = filter (\obj -> obj_longname obj /= objName) (inventory gd) }
 
 {- Does the inventory in the game state contain the given object? -}
-
 carrying :: GameData -> String -> Bool
-carrying gd obj = undefined
-
+carrying gd obj = 
+   let list = (inventory gd)
+   in case list of 
+      [] -> False
+      (x:xs) -> if (obj_longname x == obj) then True else carrying (removeInv gd (obj_longname x)) obj  
 {-
 Define the "go" action. Given a direction and a game state, update the game
 state with the new location. If there is no exit that way, report an error.
