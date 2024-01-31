@@ -140,8 +140,8 @@ get obj state =
                  updatedState = addInv state obj
                  updatedRoom = removeObject obj (getRoomData state)
                  finalState = updateRoom updatedState (location_id state) updatedRoom
-             in (finalState, "You picked up: " ++ obj ++ ".")
-        else (state, "The object: " ++obj++ " is not in the room.")
+             in (finalState, "You picked up: " ++ obj ++ ".\n")
+        else (state, "The item: " ++obj++ " is not in the room.\n")
 
 {- Remove an item from the player's inventory, and put it in the current room.
    Similar to 'get' but in reverse - find the object in the inventory, create
@@ -149,21 +149,29 @@ get obj state =
 -}
 
 put :: Action
-put obj state = undefined
-   {-if carrying state obj   WORKING ON IT - cris
+put obj state =
+   if carrying state obj
         then let
+                 objectToPut = findObj obj (inventory state)
                  updatedState = removeInv state obj
-                 updatedRoom = addObject (findObj obj) (getRoomData state)
+                 updatedRoom = addObject objectToPut (getRoomData state)
                  finalState = updateRoom updatedState (location_id state) updatedRoom
-             in (finalState, "You dropped: " ++ obj ++ ".")
-        else (state, "The object: " ++obj++ " is not in your inventory.")-}
+             in (finalState, "You dropped: " ++ obj ++ ".\n")
+        else (state, "The item: " ++ obj ++ " is not in your inventory.\n")
 
 {- Don't update the state, just return a message giving the full description
    of the object. As long as it's either in the room or the player's 
    inventory! -}
 
-examine :: Action
-examine obj state = undefined
+examine :: Action -- Using tuple as cases to check whether the item is in the room or inventory in order to use correct function and retrieve the items object description
+examine obj state = 
+    if objectHere obj (getRoomData state) || carrying state obj
+        then let objectDescription = case (objectHere obj (getRoomData state), carrying state obj) of
+                    (True, _)  -> obj_desc (objectData obj (getRoomData state))  -- Object is in the room but not inventory
+                    (_, True)  -> obj_desc (findObj obj (inventory state))        -- Object is in the inventory but not the room
+                    _          -> ""
+             in (state, "You examine " ++ obj ++ ": " ++ objectDescription ++ ".\n")
+        else (state, "The item is not in your inventory or in the room.\n")
 
 {- Pour the coffee. Obviously, this should only work if the player is carrying
    both the pot and the mug. This should update the status of the "mug"
