@@ -25,7 +25,7 @@ e.g. try these at the ghci prompt
 *Main> move "north" bedroom
 Just "kitchen"
 
-*Main> move "north" kitchenre
+*Main> move "north" kitchen
 Nothing
 -}
 
@@ -75,18 +75,25 @@ updateRoom gd rmid rmdata = gd { world = updatedWorld }
             | rid == rmid = (rmid, rmdata)
             | otherwise   = (rid, r)
 
-{- Given a game state and an object id, find the object in the current
-   room and add it to the player's inventory -}
-
+-- | Given a game state and an object name, find the object in the current
+-- | room and add it to the player's inventory.
 addInv :: GameData -> String -> GameData
-addInv gd obj = undefined
+addInv gd objName
+    | objectHere objName currentRoom = gd { inventory = object : inventory gd }
+    | otherwise = gd  -- Object not in the room, no change to game state
+    where
+      currentRoom = getRoomData gd  -- Get the current room data from the game state
+      object = objectData objName currentRoom  -- Get the object data using objectData function
+
 
 {- Given a game state and an object id, remove the object from the
    inventory. Hint: use filter to check if something should still be in
    the inventory. -}
 
+-- | Removes an object from the player's inventory.
 removeInv :: GameData -> String -> GameData
-removeInv gd obj = undefined
+removeInv gd objName = gd { inventory = filter (\obj -> obj_name obj /= objName) (inventory gd) }
+
 
 {- Does the inventory in the game state contain the given object? -}
 
