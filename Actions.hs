@@ -179,7 +179,14 @@ examine obj state =
 -}
 
 pour :: Action
-pour obj state = undefined
+pour obj state
+    | carrying state "coffee" && carrying state "mug" = 
+        let updatedInventory = fullmug : filter (\o -> obj_name o /= "mug") (inventory state)
+            updatedState = state { inventory = updatedInventory }
+        in (updatedState, "You pour coffee into the mug. Now it's a full mug.")
+    | otherwise = 
+        (state, "You need both a coffeepot and a mug to pour coffee.")
+
 
 {- Drink the coffee. This should only work if the player has a full coffee 
    mug! Doing this is required to be allowed to open the door. Once it is
