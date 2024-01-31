@@ -200,8 +200,8 @@ inv :: Command
 inv state = (state, showInv (inventory state))
    where showInv [] = "You aren't carrying anything"
          showInv xs = "You are carrying:\n" ++ showInv' xs
-         showInv' [x] = obj_longname x
-         showInv' (x:xs) = obj_longname x ++ "\n" ++ showInv' xs
+         showInv' [x] = obj_name x
+         showInv' (x:xs) = obj_name x ++ "\n" ++ showInv' xs
 
 quit :: Command
 quit state = (state { finished = True }, "Bye bye")
