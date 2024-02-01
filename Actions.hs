@@ -115,11 +115,11 @@ e.g.
 
 go :: Action
 go dir state =
-   case move dir (getRoomData state) of
+   case move dir (getRoomData state) of --Use move function with direction and room
         Just newRoomId ->
-            (state {location_id=newRoomId}, "OK\n")
+            (state {location_id=newRoomId}, "OK\n") --If successfully moved, update state and print ok message
         Nothing ->
-            (state , "Can't go that way.\n")
+            (state , "Can't go that way.\n") --Else inform user they can't go that way
 
 {- Remove an item from the current room, and put it in the player's inventory.
    This should only work if the object is in the current room. Use 'objectHere'
@@ -135,13 +135,13 @@ go dir state =
 
 get :: Action
 get obj state = 
-   if objectHere obj (getRoomData state)
+   if objectHere obj (getRoomData state) --Checks if object is in the room
         then let
-                 updatedState = addInv state obj
-                 updatedRoom = removeObject obj (getRoomData state)
-                 finalState = updateRoom updatedState (location_id state) updatedRoom
-             in (finalState, "You picked up: " ++ obj ++ ".\n")
-        else (state, "The item: " ++obj++ " is not in the room.\n")
+                 updatedState = addInv state obj --If so it adds the object to the inventory
+                 updatedRoom = removeObject obj (getRoomData state) --Removes object from the room
+                 finalState = updateRoom updatedState (location_id state) updatedRoom --Defines final state variable used in Action tuple
+             in (finalState, "You picked up: " ++ obj ++ ".\n") --Informs user of the object they picked up and updates final state
+        else (state, "The item: " ++obj++ " is not in the room.\n") --Informs user the item is not in the room
 
 {- Remove an item from the player's inventory, and put it in the current room.
    Similar to 'get' but in reverse - find the object in the inventory, create
@@ -150,12 +150,12 @@ get obj state =
 
 put :: Action
 put obj state =
-   if carrying state obj
+   if carrying state obj --Essentially reverse of get, checks if we are carrying the object
         then let
-                 objectToPut = findObj obj (inventory state)
-                 updatedState = removeInv state obj
-                 updatedRoom = addObject objectToPut (getRoomData state)
-                 finalState = updateRoom updatedState (location_id state) updatedRoom
+                 objectToPut = findObj obj (inventory state) --Finds the object in inventory
+                 updatedState = removeInv state obj --Updates the state with the removed object
+                 updatedRoom = addObject objectToPut (getRoomData state) --Updates the room with the dropped object
+                 finalState = updateRoom updatedState (location_id state) updatedRoom --Defines final state variable used in Action tuple
              in (finalState, "You dropped: " ++ obj ++ ".\n")
         else (state, "The item: " ++ obj ++ " is not in your inventory.\n")
 
@@ -169,7 +169,6 @@ examine obj state =
         then let objectDescription = case (objectHere obj (getRoomData state), carrying state obj) of
                     (True, _)  -> obj_desc (objectData obj (getRoomData state))  -- Object is in the room but not inventory
                     (_, True)  -> obj_desc (findObj obj (inventory state))        -- Object is in the inventory but not the room
-                    _          -> ""
              in (state, "You examine " ++ obj ++ ": " ++ objectDescription ++ ".\n")
         else (state, "The item is not in your inventory or in the room.\n")
 
@@ -183,9 +182,9 @@ pour obj state
     | carrying state "coffee" && carrying state "mug" = 
         let updatedInventory = fullmug : filter (\o -> obj_name o /= "mug") (inventory state)
             updatedState = state { inventory = updatedInventory }
-        in (updatedState, "You pour coffee into the mug. Now it's a full mug.")
+        in (updatedState, "You pour coffee into the mug. Now it's a full mug.\n")
     | otherwise = 
-        (state, "You need both a coffeepot and a mug to pour coffee.")
+        (state, "You need both a coffeepot and a mug to pour coffee.\n")
 
 
 {- Drink the coffee. This should only work if the player has a full coffee 
@@ -196,7 +195,12 @@ pour obj state
 -}
 
 drink :: Action
-drink obj state = undefined
+drink obj state = 
+   if carrying state obj && obj_desc fullmug == obj_desc (findObj obj (inventory state)) --Checks that we are both carrying the full mug and that the full mug is in fact full (since fullmug and mug have same short name)
+      then let updatedInventory = mug : filter (\o -> obj_longname o /= "a full coffee mug") (inventory state) --Updates the inventory using filter to replace the fullmug with an empty mug
+               updatedState = state { inventory = updatedInventory, caffeinated = True } --Defines updated state variable with the caffeinated option as true and with updated inventory
+           in (updatedState, "You drank the coffee. You feel caffeinated!\n")
+      else (state, "You can't drink that.\n")
 
 {- Open the door. Only allowed if the player has had coffee! 
    This should change the description of the hall to say that the door is open,
@@ -213,7 +217,7 @@ open obj state = undefined
 
 inv :: Command
 inv state = (state, showInv (inventory state))
-   where showInv [] = "You aren't carrying anything"
+   where showInv [] = "You aren't carrying anything.\n"
          showInv xs = "You are carrying:\n" ++ showInv' xs
          showInv' [x] = obj_name x
          showInv' (x:xs) = obj_name x ++ "\n" ++ showInv' xs
