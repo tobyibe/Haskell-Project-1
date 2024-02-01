@@ -211,7 +211,14 @@ drink obj state =
 -}
 
 open :: Action
-open obj state = undefined
+open obj state = 
+   if (caffeinated state) == False 
+      then 
+         (state, "You cannot open the door, you have not drank any coffee!") --If no coffee has been drank, then don't change anything      
+      else 
+         let updatedState  = updateRoom state "hall" (Room openedhall openedexits [])
+         in (updatedState, "The door is now open!")
+
 
 {- Don't update the game state, just list what the player is carrying -}
 
