@@ -31,9 +31,6 @@ synopsis:           Text based adventure game
 -- The license under which the package is released.
 license:            BSD-3-Clause
 
--- The file containing the license text.
-license-file:       LICENSE
-
 -- The package author(s).
 author:             CS2006-Group
 
